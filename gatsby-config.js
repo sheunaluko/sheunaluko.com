@@ -1,18 +1,25 @@
 module.exports = {
   pathPrefix: '/',
   siteMetadata: {
-    siteUrl: 'https://www.robinwieruch.de/',
-    author: 'Robin Wieruch',
-    title: 'Gatsby MDX Starter Project',
-    description: 'My Gatsby MDX Starter Project',
+    siteUrl: 'https://sheunaluko.com/',
+    author: 'Sheun Aluko',
+    title: 'Sheun Aluko',
+    description: 'Professional Model Portfolio',
     keywords: [
-      'Software Engineer',
-      'Web Developer',
-      'Consultant',
-      'Freelancer',
+      'Model',
+      'Photography',
+      'Portfolio',
+      'Fashion',
     ],
   },
   plugins: [
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        path: `${__dirname}/pics`,
+        name: 'photos',
+      },
+    },
     {
       resolve: 'gatsby-source-filesystem',
       options: {
@@ -50,8 +57,8 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
-        name: 'A learning, teaching and writing software engineer',
-        short_name: 'RWieruch',
+        name: 'Sheun Aluko - Professional Model Portfolio',
+        short_name: 'Sheun Aluko',
         start_url: '/',
         background_color: '#fff',
         theme_color: '#525dce',
