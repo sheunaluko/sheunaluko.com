@@ -153,6 +153,7 @@ export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentShoot, setCurrentShoot] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [preloadedImages, setPreloadedImages] = useState(new Set());
 
   // Organize images by shoot
   const shoots = {};
