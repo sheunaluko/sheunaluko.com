@@ -210,6 +210,26 @@ export default function Portfolio() {
     setMenuOpen(false);
   };
 
+  // Preload next three images when current image or shoot changes
+  useEffect(() => {
+    if (currentImages.length > 0) {
+      const imagesToPreload = [];
+      
+      // Get next three images in sequence, handling wrap-around
+      for (let i = 1; i <= 3; i++) {
+        const nextIndex = (currentImageIndex + i) % currentImages.length;
+        const nextImage = currentImages[nextIndex];
+        if (nextImage && nextImage.publicURL) {
+          imagesToPreload.push(nextImage.publicURL);
+        }
+      }
+      
+      if (imagesToPreload.length > 0) {
+        preloadImages(imagesToPreload);
+      }
+    }
+  }, [currentImageIndex, currentShoot, currentImages]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -265,4 +285,5 @@ export default function Portfolio() {
     </PortfolioContainer>
   );
 }
+
 
