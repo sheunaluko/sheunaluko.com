@@ -181,6 +181,17 @@ export default function Portfolio() {
 
   const currentImages = shoots[currentShoot] || [];
 
+  // Preload images function
+  const preloadImages = (imageUrls) => {
+    imageUrls.forEach((url) => {
+      if (!preloadedImages.has(url)) {
+        const img = new Image();
+        img.src = url;
+        setPreloadedImages((prev) => new Set([...prev, url]));
+      }
+    });
+  };
+
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
       prev === currentImages.length - 1 ? 0 : prev + 1
@@ -254,3 +265,4 @@ export default function Portfolio() {
     </PortfolioContainer>
   );
 }
+
