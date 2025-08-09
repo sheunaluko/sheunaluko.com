@@ -25,7 +25,7 @@ const MenuButton = styled.button`
   cursor: pointer;
   border-radius: 5px;
   font-family: 'Arial', sans-serif;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.9);
   }
@@ -34,7 +34,7 @@ const MenuButton = styled.button`
 const Menu = styled.div`
   position: fixed;
   top: 0;
-  left: ${props => props.isOpen ? '0' : '-300px'};
+  left: ${(props) => (props.isOpen ? '0' : '-300px')};
   width: 300px;
   height: 100vh;
   background: rgba(0, 0, 0, 0.95);
@@ -55,11 +55,11 @@ const MenuItem = styled.button`
   text-align: left;
   border-bottom: 1px solid #333;
   font-family: 'Arial', sans-serif;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.1);
   }
-  
+
   &.active {
     color: #ccc;
     background: rgba(255, 255, 255, 0.1);
@@ -93,15 +93,15 @@ const NavButton = styled.button`
   font-size: 24px;
   cursor: pointer;
   z-index: 100;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.8);
   }
-  
+
   &.prev {
     left: 20px;
   }
-  
+
   &.next {
     right: 20px;
   }
@@ -153,10 +153,11 @@ export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentShoot, setCurrentShoot] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [preloadedImages, setPreloadedImages] = useState(new Set());
 
   // Organize images by shoot
   const shoots = {};
-  data.allFile.nodes.forEach(node => {
+  data.allFile.nodes.forEach((node) => {
     const shootName = node.relativeDirectory;
     if (!shoots[shootName]) {
       shoots[shootName] = [];
@@ -165,7 +166,7 @@ export default function Portfolio() {
   });
 
   // Sort images in each shoot
-  Object.keys(shoots).forEach(shootName => {
+  Object.keys(shoots).forEach((shootName) => {
     shoots[shootName].sort((a, b) => a.name.localeCompare(b.name));
   });
 
@@ -180,15 +181,26 @@ export default function Portfolio() {
 
   const currentImages = shoots[currentShoot] || [];
 
+  // Preload images function
+  const preloadImages = (imageUrls) => {
+    imageUrls.forEach((url) => {
+      if (!preloadedImages.has(url)) {
+        const img = new Image();
+        img.src = url;
+        setPreloadedImages((prev) => new Set([...prev, url]));
+      }
+    });
+  };
+
   const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === currentImages.length - 1 ? 0 : prev + 1
+    setCurrentImageIndex((prev) =>
+      prev === currentImages.length - 1 ? 0 : prev + 1,
     );
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? currentImages.length - 1 : prev - 1
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? currentImages.length - 1 : prev - 1,
     );
   };
 
@@ -198,15 +210,37 @@ export default function Portfolio() {
     setMenuOpen(false);
   };
 
+  // Preload next three images when current image or shoot changes
+  useEffect(() => {
+    if (currentImages.length > 0) {
+      const imagesToPreload = [];
+
+      // Get next three images in sequence, handling wrap-around
+      for (let i = 1; i <= 3; i++) {
+        const nextIndex =
+          (currentImageIndex + i) % currentImages.length;
+        const nextImage = currentImages[nextIndex];
+        if (nextImage && nextImage.publicURL) {
+          imagesToPreload.push(nextImage.publicURL);
+        }
+      }
+
+      if (imagesToPreload.length > 0) {
+        preloadImages(imagesToPreload);
+      }
+    }
+  }, [currentImageIndex, currentShoot, currentImages]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.key === 'ArrowRight') nextImage();
       if (e.key === 'ArrowLeft') prevImage();
     };
-    
+
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    return () =>
+      window.removeEventListener('keydown', handleKeyPress);
   }, [currentImages.length]);
 
   if (shootNames.length === 0) {
@@ -220,9 +254,9 @@ export default function Portfolio() {
       <MenuButton onClick={() => setMenuOpen(!menuOpen)}>
         ☰ SHOOTS
       </MenuButton>
-      
+
       <Menu isOpen={menuOpen}>
-        {shootNames.map(shootName => (
+        {shootNames.map((shootName) => (
           <MenuItem
             key={shootName}
             className={shootName === currentShoot ? 'active' : ''}
@@ -235,18 +269,22 @@ export default function Portfolio() {
 
       {currentImage && (
         <CarouselContainer>
-          <NavButton className="prev" onClick={prevImage}>‹</NavButton>
-          <Image 
-            src={currentImage.publicURL} 
+          <NavButton className="prev" onClick={prevImage}>
+            ‹
+          </NavButton>
+          <Image
+            src={currentImage.publicURL}
             alt={`${currentShoot} ${currentImageIndex + 1}`}
             onClick={nextImage}
           />
-          <NavButton className="next" onClick={nextImage}>›</NavButton>
+          <NavButton className="next" onClick={nextImage}>
+            ›
+          </NavButton>
         </CarouselContainer>
       )}
 
       <ShootTitle>{currentShoot.replace(/_/g, ' ')}</ShootTitle>
-      
+
       <ImageCounter>
         {currentImageIndex + 1} / {currentImages.length}
       </ImageCounter>
